@@ -1,0 +1,67 @@
+/*
+ * cards_i_size represents the size of 1st dimension of the cards array
+ * cards_j_size represents the size of 2nd dimension of the cards array
+ * moves_i_size represents the size of 1st dimension of the moves array
+ * moves_j_size represents the size of 2nd dimension of the moves array
+ * return_i_size represents the size of 1st dimension of the returning array
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+typedef struct {
+    int row;
+    int col;
+} Position;
+
+int* solution(int** cards, int cards_i_size, int* cards_j_size, int** moves, int moves_i_size, int* moves_j_size, int query, int* return_i_size) {
+  // Initialize positions array to keep track of card positions
+    Position* positions = (Position*)malloc((cards_i_size + 1) * sizeof(Position)); // +1 to handle card IDs directly
+    for (int i = 0; i < cards_i_size; i++) {
+        int card_id = cards[i][0];
+        int row = cards[i][1];
+        int col = cards[i][2];
+        positions[card_id].row = row;
+        positions[card_id].col = col;
+    }
+    
+    // Process each move
+    for (int i = 0; i < moves_i_size; i++) {
+        int card_id = moves[i][0];
+        int src_row = moves[i][1];
+        int src_col = moves[i][2];
+        int dest_row = moves[i][3];
+        int dest_col = moves[i][4];
+        
+        // Move the card
+        positions[card_id].row = dest_row;
+        positions[card_id].col = dest_col;
+        
+        // Adjust positions of other cards if necessary
+        for (int j = 0; j < cards_i_size; j++) {
+            int other_card_id = cards[j][0];
+            if (other_card_id == card_id) continue;
+            
+            int other_row = positions[other_card_id].row;
+            int other_col = positions[other_card_id].col;
+            
+            // Shift cards down if they are in the same row and col as the moved card's new position
+            if (other_row == dest_row && other_col == dest_col) {
+                positions[other_card_id].row = other_row + 1;
+            }
+            
+            // Shift cards up if they are in the row where the card was moved from and below the moved card's original position
+            if (other_row == src_row && other_col > src_col) {
+                positions[other_card_id].row = other_row - 1;
+            }
+        }
+    }
+    
+    // Prepare the return array
+    *return_i_size = 2;
+    int* result = (int*)malloc(*return_i_size * sizeof(int));
+    result[0] = positions[query].row;
+    result[1] = positions[query].col;
+    
+    // Free allocated memory
+    free(positions);
+    
+    return result;
+}
