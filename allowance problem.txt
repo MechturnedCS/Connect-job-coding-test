@@ -1,0 +1,29 @@
+/*
+ * allowances_i_size represents the size of 1st dimension of the allowances array
+ * return_i_size represents the size of 1st dimension of the returning array
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+bool* solution(int* allowances, int allowances_i_size, int extraAllowances, int* return_i_size) {
+    // Determine the maximum initial allowance
+    int max_allowance = allowances[0];
+    for (int i = 1; i < allowances_i_size; ++i) {
+        if (allowances[i] > max_allowance) {
+            max_allowance = allowances[i];
+        }
+    }
+
+    // Allocate memory for the result array
+    bool* result = (bool*)malloc(allowances_i_size * sizeof(bool));
+    
+    // Calculate the result for each child
+    for (int i = 0; i < allowances_i_size; ++i) {
+        result[i] = (allowances[i] + extraAllowances) >= max_allowance;
+    }
+
+    // Set the size of the returning array
+    *return_i_size = allowances_i_size;
+    
+    return result;
+}
+
+
